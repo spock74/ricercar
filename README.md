@@ -61,4 +61,7 @@ Como o projeto envolve uma etapa de processamento de dados (Python) e uma de vis
 O Ricercar é um laboratório em evolução. As próximas iterações pretendem expandir a análise para estruturas mais complexas e disfuncionais, como a fragmentação temática na *Sonata Hammerklavier* (Op. 106) de Beethoven, buscando correlações com modelos de afasia e patologias da linguagem.
 
 ---
-*Desenvolvido no contexto do Laboratório Causal (Hyper-Graph).*
+*Desenvolvido no contexto do Laboratório Causal Mental (A Zehn-Hyper-Graph).*
+
+---
+With :heart: by Zehn::spock74
