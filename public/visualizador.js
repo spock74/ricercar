@@ -38,7 +38,7 @@
       await osmd.load(PATHS.xml);
       await osmd.render();
 
-      ui.status.innerHTML = "Pronto (Cursor Sincronizado)";
+      ui.status.innerHTML = "(Cursor Sincronizado)";
       ui.status.className = "text-green-600 font-bold text-sm";
 
       ui.legenda.innerHTML = `
