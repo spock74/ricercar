@@ -12,7 +12,8 @@
     "dev": "npm run analisar && npm run start",
     
     "//": "--- SCRIPT PARA VERCEL ---",
-    "build": "pip install -r requirements.txt && python3 src/analisar_fuga.py"
+    "// build": "pip install -r requirements.txt && python3 src/analisar_fuga.py",
+    "build": ""
   },
   "keywords": [
     "bach",
