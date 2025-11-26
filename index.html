@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teatro de Bach - BWV 847</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/opensheetmusicdisplay@1.8.3/build/opensheetmusicdisplay.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        
+        /* O Container da Partitura deve ser RELATIVO para que o cursor ABSOLUTO funcione dentro dele */
+        #osmd-container {
+            position: relative; 
+        }
+
+        /* NOSSO CURSOR PERSONALIZADO */
+        #cursor-manual {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px; /* Largura da linha */
+            height: 200px; /* Altura inicial, será ajustada pelo JS */
+            background-color: #F59E0B; /* Laranja Ouro */
+            box-shadow: 0 0 8px #F59E0B;
+            z-index: 9999;
+            pointer-events: none; /* Deixa clicar através dele */
+            display: none; /* Escondido inicialmente */
+            transition: left 0.1s linear, top 0.1s linear; /* Movimento suave */
+        }
+    </style>
+</head>
+<body class="p-6 md:p-10 flex flex-col items-center min-h-screen text-gray-800">
+
+    <header class="text-center mb-8">
+        <h1 class="text-4xl font-extrabold mb-2 text-gray-900">Teatro de Bach</h1>
+        <p class="text-lg text-gray-600">Fuga em Dó Menor (BWV 847)</p>
+    </header>
+
+    <!-- Controles -->
+    <div class="bg-white p-4 rounded-xl shadow-md w-full max-w-6xl mb-6 border border-gray-100 sticky top-4 z-50">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-2">
+                <button id="btn-play" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition flex items-center gap-2">
+                    <span id="icon-play">▶</span> <span id="text-play">Play</span>
+                </button>
+                <button id="btn-stop" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg shadow transition">
+                    ■ Stop
+                </button>
+            </div>
+
+            <div class="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-lg border">
+                <span class="text-sm font-bold text-gray-500">TEMPO</span>
+                <input type="range" id="bpm-slider" min="40" max="160" value="60" class="accent-blue-600 cursor-pointer">
+                <span id="bpm-value" class="font-mono font-bold text-blue-600 w-8 text-right">60</span>
+                <span class="text-xs text-gray-400">BPM</span>
+            </div>
+
+            <div class="flex flex-col items-end">
+                <div id="status" class="text-sm font-semibold text-gray-500 mb-1">Inicializando...</div>
+                <div id="legenda" class="flex gap-3 text-xs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Container da Partitura -->
+    <div id="osmd-container" class="bg-white p-2 md:p-6 shadow-xl rounded-xl w-full max-w-6xl overflow-hidden min-h-[500px]">
+        <!-- Aqui está o nosso cursor manual inserido "na força" -->
+        <div id="cursor-manual"></div>
+    </div>
+
+    <script src="./public/visualizador.js"></script>
+
+</body>
+</html>

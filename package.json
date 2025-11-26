@@ -1,0 +1,28 @@
+{
+  "name": "ricercar-bach",
+  "version": "2.1.0",
+  "description": "Visualização Morfológica Interativa da Fuga BWV 847",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    
+    "//": "--- SCRIPTS LOCAIS ---",
+    "analisar": "python3 src/analisar_fuga.py",
+    "start": "http-server -c-1 . -p 8080",
+    "dev": "npm run analisar && npm run start",
+    
+    "//": "--- SCRIPT PARA VERCEL ---",
+    "build": "pip install -r requirements.txt && python3 src/analisar_fuga.py"
+  },
+  "keywords": [
+    "bach",
+    "music-theory",
+    "visualization",
+    "morphism"
+  ],
+  "author": "Moraes & Gemini",
+  "license": "ISC",
+  "dependencies": {
+    "http-server": "^14.1.1"
+  }
+}

@@ -1,0 +1,49 @@
+# --- DEPENDÊNCIAS DO NODE.JS ---
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# --- PYTHON ---
+# Byte-compiled / Otimizados / DLLs
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Ambientes Virtuais (Venvs)
+# É crucial não subir o ambiente virtual inteiro
+venv/
+env/
+.venv/
+.env
+
+# Distribuição / Build
+build/
+dist/
+eggs/
+.eggs/
+*.egg-info/
+*.egg
+
+# --- SISTEMA OPERACIONAL (MAC/WINDOWS) ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# --- EDITORES DE CÓDIGO ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- ARTEFATOS DO PROJETO (ARQUIVOS GERADOS) ---
+# Ignoramos o XML colorido porque ele é gerado automaticamente pelo script.
+# O "Source of Truth" é o BWV847.xml original + o script Python.
+public/BWV847_colorido.xml
+public/agentes.json
+
+# Logs e arquivos temporários
+*.log
