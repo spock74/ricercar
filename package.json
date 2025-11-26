@@ -5,15 +5,12 @@
   "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    
     "//": "--- SCRIPTS LOCAIS ---",
     "analisar": "python3 src/analisar_fuga.py",
     "start": "http-server -c-1 . -p 8080",
     "dev": "npm run analisar && npm run start",
-    
     "//": "--- SCRIPT PARA VERCEL ---",
-    "// build": "pip install -r requirements.txt && python3 src/analisar_fuga.py",
-    "build": ""
+    "build": "pip install -r requirements.txt && python3 src/analisar_fuga.py"
   },
   "keywords": [
     "bach",
