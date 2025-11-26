@@ -1,131 +1,80 @@
-(async () => {
-    console.log("LUZES, CÂMERA, CURSOR!");
+import music21.converter
+from music21 import interval, note
+import os
 
-    const PATHS = { xml: './public/BWV847_colorido.xml' };
+# --- CORES ---
+COR_SUJEITO = '#DC2626'       # Vermelho
+COR_CONTRASSUJEITO = '#2563EB' # Azul
+
+# --- PADRÕES ---
+# Sujeito (C -> B -> C -> G): Desce m2, Sobe m2, Desce P4
+sujeito_padrao = ['m-2', 'm2', 'P-4']
+
+# Contrassujeito simplificado
+contrassujeito_padrao = ['M2', 'P-5'] 
+
+def analisar_e_pintar():
+    # Define caminhos robustos
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    xml_input = os.path.join(base_dir, 'public', 'BWV847.xml')
+    xml_output = os.path.join(base_dir, 'public', 'BWV847_colorido.xml')
+
+    print(f"--- Iniciando Análise Morfológica ---")
     
-    const ui = {
-        playBtn: document.getElementById('btn-play'),
-        stopBtn: document.getElementById('btn-stop'),
-        bpmSlider: document.getElementById('bpm-slider'),
-        bpmValue: document.getElementById('bpm-value'),
-        status: document.getElementById('status'),
-        legenda: document.getElementById('legenda'),
-        container: document.getElementById('osmd-container')
-    };
+    # Verifica se o arquivo de entrada existe antes de tentar abrir
+    if not os.path.exists(xml_input):
+        print(f"ERRO: Arquivo de entrada não encontrado: {xml_input}")
+        # Tenta listar o diretório para debug na Vercel
+        print(f"Conteúdo de public/: {os.listdir(os.path.join(base_dir, 'public'))}")
+        return
 
-    let osmd = null;
-    let isPlaying = false;
-    let audioContextReady = false;
-    // Sintetizador com volume mais baixo para não assustar
-    const synth = new Tone.PolySynth(Tone.Synth, { volume: -10 }).toDestination();
+    try:
+        score = music21.converter.parse(xml_input)
+    except Exception as e:
+        print(f"ERRO CRÍTICO ao ler XML: {e}")
+        return
 
-    async function iniciar() {
-        try {
-            const check = await fetch(PATHS.xml);
-            if(!check.ok) throw new Error("XML não encontrado.");
+    total_pintadas = 0
 
-            ui.status.innerHTML = "Carregando...";
-
-            // CONFIGURAÇÃO DO OSMD
-            osmd = new opensheetmusicdisplay.OpenSheetMusicDisplay(ui.container, {
-                backend: 'svg', 
-                // REMOVIDO 'compacttight' -> Isso expande a partitura e dá espaço pro cursor
-                drawingParameters: 'default', 
-                autoResize: true,
-                drawTitle: false,
-                followCursor: true, 
-            });
-
-            await osmd.load(PATHS.xml);
-            await osmd.render();
-
-            ui.status.innerHTML = "Pronto (Cursor Forçado)";
-            ui.status.className = "text-green-600 font-bold text-sm";
-            
-            ui.legenda.innerHTML = `
-                <div class="flex items-center gap-2"><div style="width:12px;height:12px;background:#DC2626;border-radius:2px;"></div>Sujeito</div>
-                <div class="flex items-center gap-2 ml-4"><div style="width:12px;height:12px;background:#2563EB;border-radius:2px;"></div>Contrassujeito</div>
-            `;
-
-            // Inicializa cursor
-            osmd.cursor.show();
-            osmd.cursor.reset();
-
-        } catch (e) {
-            console.error(e);
-            ui.status.innerHTML = `<span class="text-red-600">Erro: ${e.message}</span>`;
-        }
-    }
-
-    // --- Lógica de Playback ---
-    function tick() {
-        if (!isPlaying || !osmd.cursor) return;
-
-        if (osmd.cursor.Iterator.EndReached) {
-            stop();
-            return;
-        }
-
-        const iterator = osmd.cursor.Iterator;
-        const voices = iterator.CurrentVoiceEntries;
+    for part in score.parts:
+        print(f"Analisando voz: {part.partName or 'Sem Nome'}")
         
-        // Toca as notas que o cursor está passando por cima agora
-        if(voices) {
-            for(let v of voices) {
-                for(let note of v.Notes) {
-                    if(note && !note.isRest() && note.Pitch) {
-                        // Duração curta para não embolar
-                        synth.triggerAttackRelease(note.Pitch.Frequency, "16n");
-                    }
-                }
-            }
-        }
-
-        // Avança o cursor
-        osmd.cursor.next();
+        # Pega todas as notas
+        notas = [n for n in part.flat.notes if isinstance(n, note.Note)]
         
-        // Calcula tempo para o próximo passo
-        const bpm = parseInt(ui.bpmSlider.value);
-        // Avança em semicolcheias (4 passos por batida) para ficar fluido
-        const stepTime = (60 / bpm) * 1000 * 0.25; 
-
-        setTimeout(tick, stepTime);
-    }
-
-    // --- Controles ---
-    ui.playBtn.addEventListener('click', async () => {
-        if(!audioContextReady) { await Tone.start(); audioContextReady = true; }
+        # Calcula intervalos DIRECIONADOS
+        intervalos = []
+        for i in range(len(notas) - 1):
+            try:
+                inv = interval.Interval(noteStart=notas[i], noteEnd=notas[i+1])
+                intervalos.append(inv.directedName)
+            except:
+                intervalos.append("X")
         
-        if(isPlaying) {
-            // Pause
-            isPlaying = false;
-            ui.playBtn.innerHTML = '<span id="icon-play">▶</span> <span id="text-play">Continuar</span>';
-            ui.playBtn.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-lg shadow transition flex items-center gap-2";
-        } else { 
-            // Play
-            isPlaying = true; 
-            ui.playBtn.innerHTML = '<span id="icon-play">⏸</span> <span id="text-play">Pause</span>';
-            ui.playBtn.className = "bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-lg shadow transition flex items-center gap-2";
-            
-            // Garante que o cursor aparece ao dar play
-            osmd.cursor.show();
-            tick(); 
-        }
-    });
+        # Busca Padrões
+        for i in range(len(intervalos)):
+            # 1. Sujeito
+            fatia = intervalos[i : i + len(sujeito_padrao)]
+            if fatia == sujeito_padrao:
+                for k in range(len(sujeito_padrao) + 1):
+                    notas[i+k].style.color = COR_SUJEITO
+                    total_pintadas += 1
 
-    ui.stopBtn.addEventListener('click', stop);
+            # 2. Contrassujeito
+            fatia_c = intervalos[i : i + len(contrassujeito_padrao)]
+            if fatia_c == contrassujeito_padrao:
+                if not notas[i].style.color:
+                    for k in range(len(contrassujeito_padrao) + 1):
+                        notas[i+k].style.color = COR_CONTRASSUJEITO
+                        total_pintadas += 1
 
-    function stop() {
-        isPlaying = false;
-        ui.playBtn.innerHTML = '<span id="icon-play">▶</span> <span id="text-play">Play</span>';
-        ui.playBtn.className = "bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg shadow transition flex items-center gap-2";
-        if(osmd) { 
-            osmd.cursor.reset(); 
-            osmd.cursor.show(); 
-        }
-    }
+    print(f"🎨 Total de notas coloridas: {total_pintadas}")
+    
+    # Garante que o diretório de saída existe (importante para Vercel)
+    os.makedirs(os.path.dirname(xml_output), exist_ok=True)
+    
+    score.write('xml', fp=xml_output)
+    print(f"📁 Arquivo salvo: {xml_output}")
 
-    ui.bpmSlider.addEventListener('input', (e) => ui.bpmValue.innerText = e.target.value);
-
-    iniciar();
-})();
+if __name__ == "__main__":
+    analisar_e_pintar()
